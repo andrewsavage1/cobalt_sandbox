@@ -11,6 +11,8 @@
 # limitations under the License."""
 """Definition of interface used by host apps to configure Starboard"""
 
+# Another test
+
 from cobalt.build import cobalt_configuration
 
 # List of paths to directories in which Starboard ports are located. Each path
