@@ -1,3 +1,5 @@
+Test change
+
 # Contributing to Cobalt
 
 We'd love to hear about how you would like to contribute to Cobalt! It's worth
