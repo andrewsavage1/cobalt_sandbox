@@ -12,16 +12,15 @@ jobs:
     strategy:
       matrix:
         target_branch: ['23.lts.1+', '22.lts.1+']
+    if: |
+      contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }}) &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.merge_commit_sha != null
     env:
-      TARGET_LABEL: ${{ format('cp-{0}', matrix.target_branch) }}
       ACCESS_TOKEN: ${{ secrets.CHERRY_PICK_TOKEN }}
       REPOSITORY: ${{ github.repository }}
       GITHUB_REF: ${{ github.ref }}
       MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-    if: |
-      contains(github.event.pull_request.labels.*.name, env.TARGET_LABEL) &&
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.merge_commit_sha != null
     steps:
       - name: Checkout repository
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
