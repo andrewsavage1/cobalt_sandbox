@@ -27,20 +27,24 @@ jobs:
       - name: Set RUN_FOR_CURRENT_BRANCH for closed pull_request
         if: github.event.action == 'closed'
         run: |
-          MATRIX_TARGET_BRANCHES=${{ toJson(matrix.target_branch) }}
-          for branch in "${MATRIX_TARGET_BRANCHES[@]}"; do
-            if contains(github.event.pull_request.labels.*.name, format('cp-%s', branch)); then
-              echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
-              break
-            fi
+          MATRIX_TARGET_BRANCHES=$(echo '${{ toJson(matrix.target_branch) }}' | jq -r '.[]')
+          PR_LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -r '.[]')
+          for branch in $MATRIX_TARGET_BRANCHES; do
+            for label in $PR_LABELS; do
+              if [ "cp-$branch" == "$label" ]; then
+                echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
+                break 2
+              fi
+            done
           done
 
       - name: Set RUN_FOR_CURRENT_BRANCH for labeled pull_request
         if: github.event.action == 'labeled'
         run: |
-          MATRIX_TARGET_BRANCHES=${{ toJson(matrix.target_branch) }}
-          for branch in "${MATRIX_TARGET_BRANCHES[@]}"; do
-            if github.event.label.name == format('cp-%s', branch); then
+          MATRIX_TARGET_BRANCHES=$(echo '${{ toJson(matrix.target_branch) }}' | jq -r '.[]')
+          LABEL_NAME="${{ github.event.label.name }}"
+          for branch in $MATRIX_TARGET_BRANCHES; do
+            if [ "cp-$branch" == "$LABEL_NAME" ]; then
               echo "RUN_FOR_CURRENT_BRANCH=true" >> $GITHUB_ENV
               break
             fi
