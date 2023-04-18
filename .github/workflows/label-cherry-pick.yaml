@@ -13,7 +13,6 @@ jobs:
       matrix:
         target_branch: ['23.lts.1+', '22.lts.1+']
     if: |
-      contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }}) &&
       github.event.pull_request.merged == true &&
       github.event.pull_request.merge_commit_sha != null
     env:
@@ -23,22 +22,27 @@ jobs:
       MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
     steps:
       - name: Checkout repository
+        if: contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
         with:
           ref: ${{ matrix.target_branch }}
           fetch-depth: 0
 
       - name: Setup Git
+        if: contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
         run: |
           git config --global user.name "GitHub Release Automation"
           git config --global user.email "github@google.com"
 
       - name: Cherry pick merge commit
+        if: contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
         run: |
           git fetch origin ${{ matrix.target_branch }}
           git cherry-pick -x $MERGE_COMMIT_SHA
+        
 
       - name: Create Pull Request
+        if: contains(github.event.pull_request.labels.*.name, ${{ format('cp-{0}', matrix.target_branch) }})
         uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04 # v4.2.3
         with:
           token: ${{ secrets.CHERRY_PICK_TOKEN }}
